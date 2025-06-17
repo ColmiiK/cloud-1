@@ -8,7 +8,9 @@
   copy:
     src: files/docker-compose.yml
     dest: /opt/wordpress/docker-compose.yml
+    mode: "0644"
 
+# using shell is not idempotent, use community.docker.docker-compose
 - name: Launch Wordpress using Docker Compose
   shell: docker-compose up -d
   args:
