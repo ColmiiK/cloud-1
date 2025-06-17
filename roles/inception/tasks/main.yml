@@ -4,6 +4,12 @@
     state: directory
     mode: "0755"
 
+- name: Copy .env file
+  copy:
+    src: .env
+    dest: "{{ wordpress_site_dir }}/.env"
+    mode: "0600"
+
 - name: Template docker-compose.yml
   template:
     src: docker-compose.yml.j2
@@ -14,4 +20,4 @@
 - name: Launch Wordpress using Docker Compose
   shell: docker-compose up -d
   args:
-    chdir: /opt/wordpress
+    chdir: "{{ wordpress_site_dir }}"
