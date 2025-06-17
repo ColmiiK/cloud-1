@@ -1,0 +1,15 @@
+- name: Ensure Wordpress directory exists
+  file:
+    path: /opt/wordpress
+    state: directory
+    mode: "0755"
+
+- name: Copy docker-compose.yml to server
+  copy:
+    src: files/docker-compose.yml
+    dest: /opt/wordpress/docker-compose.yml
+
+- name: Launch Wordpress using Docker Compose
+  shell: docker-compose up -d
+  args:
+    chdir: /opt/wordpress
