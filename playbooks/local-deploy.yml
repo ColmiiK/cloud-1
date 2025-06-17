@@ -1,0 +1,5 @@
+- name: Deploy Inception locally
+  hosts: localhost
+  become: yes
+  roles:
+    - inception
