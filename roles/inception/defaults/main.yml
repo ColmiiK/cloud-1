@@ -1,0 +1,5 @@
+wordpress_site_dir: /opt/wordpress
+wordpress_port: 80
+db_name: wordpress
+db_user: wordpress
+db_password: wordpress

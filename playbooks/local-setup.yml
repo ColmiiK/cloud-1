@@ -35,8 +35,8 @@
         dest: /usr/local/bin/docker-compose
         mode: "0755"
 
-- name: Deploy Wordpress
+- name: Deploy Inception
   hosts: localhost
   become: true
   roles:
-    - wordpress
+    - inception
