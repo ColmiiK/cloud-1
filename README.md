@@ -34,3 +34,19 @@ all:
 
 These go in a `hosts.yml` or `hosts.ini` file and are automatically discovered by Ansible.
 We can also put `host_vars/` to isolate variables per host.
+
+## Requirements
+
+- Restart automatically if the server is rebooted
+- In case of reboot, all data must persist
+  - Docker volumes, nothing else?
+- Possible to deploy your site on multiple servers in parallel
+  - Add multiple hosts to `ansible.cfg`
+- The script must function in an automatic way assuming Ubuntu 20.04 LTS with SSH and Python
+- One application per container
+- Public access to the server must be limited, unable to connect to the DB
+- The services are the components of a WordPress site
+- There must be a `docker-compose.yml`
+- The SQL database must work with WordPress and PHP-MyAdmin
+- The server must use TLS
+- Depending on the requested URL, the server must redirect to the correct site
