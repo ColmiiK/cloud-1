@@ -38,5 +38,8 @@
 - name: Deploy Inception
   hosts: localhost
   become: true
-  roles:
-    - inception
+  tasks:
+    - name: Include main tasks from Inception role
+      include_role:
+        name: inception
+        tasks_from: main
