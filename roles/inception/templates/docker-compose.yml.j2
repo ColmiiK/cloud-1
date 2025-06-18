@@ -12,3 +12,12 @@ services:
     image: {{ mysql_image }}
     env_file:
     - .env
+
+  phpmyadmin:
+    image: {{ phpmyadmin_image }}
+    ports:
+      - "{{ phpmyadmin_port }}:80"
+    env_file:
+    - .env
+    depends_on:
+      - db
