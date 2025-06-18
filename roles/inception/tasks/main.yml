@@ -10,6 +10,30 @@
     dest: "{{ wordpress_site_dir }}/.env"
     mode: "0600"
 
+- name: Create directory for TLS certificates
+  file:
+    path: "{{ wordpress_site_dir }}/certs"
+    state: directory
+    mode: "0755"
+
+- name: Generate private key
+  openssl_privatekey:
+    path: "{{ wordpress_site_dir }}/certs/privkey-{{ domain }}.pem"
+    size: 2048
+    type: RSA
+
+- name: Generate self-signed certificate
+  openssl_certificate:
+    path: "{{ wordpress_site_dir }}/certs/fullchain-{{ domain }}.pem"
+    privatekey_path: "{{ wordpress_site_dir }}/certs/privkey-{{ domain }}.pem"
+    provider: selfsigned
+
+- name: Template nginx.conf
+  template:
+    src: nginx.conf.j2
+    dest: "{{ wordpress_site_dir }}/nginx.conf"
+    mode: "0644"
+
 - name: Template docker-compose.yml
   template:
     src: docker-compose.yml.j2

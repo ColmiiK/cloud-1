@@ -1,4 +1,5 @@
 wordpress_site_dir: /opt/wordpress
+domain: alvegag-cloud.com
 wordpress_port: 80
 phpmyadmin_port: 8080
 db_name: wordpress

@@ -1,0 +1,31 @@
+events {}
+
+http {
+    server {
+        listen 80;
+        server_name {{ domain }};
+        return 301 https://$host$request_uri;
+    }
+
+    server {
+        listen 443 ssl;
+        server_name {{ domain }};
+
+        ssl_certificate /etc/nginx/certs/fullchain-{{ domain }}.pem;
+        ssl_certificate_key /etc/nginx/certs/privkey-{{ domain }}.pem;
+
+        location / {
+            proxy_pass http://wordpress:80;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        location /phpmyadmin/ {
+            proxy_pass http://phpmyadmin:80/;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            rewrite ^/phpmyadmin(/.*)$ $1 break;
+            proxy_redirect off;
+        }
+    }
+}
