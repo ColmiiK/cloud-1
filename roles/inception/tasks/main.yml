@@ -16,11 +16,6 @@
     dest: "{{ wordpress_site_dir }}/wp-init.sh"
     mode: "0755"
 
-# - name: Make wp-init.sh executable
-#   file:
-#     path: "{{ wordpress_site_dir }}/wp-init.sh"
-#     mode: "0644"
-
 - name: Create directory for TLS certificates
   file:
     path: "{{ wordpress_site_dir }}/certs"
