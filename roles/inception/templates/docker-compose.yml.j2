@@ -7,6 +7,22 @@ services:
       - db
     networks:
       - backend
+    volumes:
+      - wordpress_data:/var/www/html
+
+  wpcli:
+    image: {{ wpcli_image }}
+    env_file:
+      - .env
+    networks:
+      - backend
+    volumes:
+      - wordpress_data:/var/www/html
+      - "{{ wordpress_site_dir }}/wp-init.sh:/docker-entrypoint-init.d/wp-init.sh:ro"
+    depends_on:
+      - db
+      - wordpress
+    entrypoint: /docker-entrypoint-init.d/wp-init.sh
 
   db:
     image: {{ mysql_image }}
@@ -42,3 +58,6 @@ services:
 networks:
   backend:
     driver: bridge
+
+volumes:
+  wordpress_data:

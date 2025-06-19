@@ -1,4 +1,5 @@
 wordpress_image: wordpress:latest
+wpcli_image: wordpress:cli
 mysql_image: mysql:latest
 phpmyadmin_image: phpmyadmin:latest
 nginx_image: nginx:latest
