@@ -1,32 +1,28 @@
-#!/bin/sh
+#!/bin/bash
+set -e
 
-# Wait until WordPress is up and responding
-until curl -s wordpress:80 >/dev/null; do
-  echo "Waiting for WordPress to be up..."
-  sleep 5
+# Wait for MySQL to be ready
+echo "Waiting for MySQL..."
+until nc -z "$WORDPRESS_DB_HOST" 3306; do
+  sleep 2
 done
+echo "MySQL is up."
 
-# Optional: create wp-config.php if not already there
-if [ ! -f /var/www/html/wp-config.php ]; then
-  wp config create \
-    --dbname="$WORDPRESS_DB_NAME" \
-    --dbuser="$WORDPRESS_DB_USER" \
-    --dbpass="$WORDPRESS_DB_PASSWORD" \
-    --dbhost="db" \
-    --path=/var/www/html \
-    --allow-root
-fi
-
-# Run the installation if WordPress isn't installed yet
-if ! wp core is-installed --path=/var/www/html --allow-root; then
+# Check if WordPress is installed
+if ! wp core is-installed --allow-root; then
+  echo "WordPress not installed. Installing..."
   wp core install \
-    --url="$SITE_URL" \
-    --title="$SITE_TITLE" \
-    --admin_user="$WP_ADMIN_USER" \
-    --admin_password="$WP_ADMIN_PASSWORD" \
-    --admin_email="$WP_ADMIN_EMAIL" \
-    --path=/var/www/html \
+    --url="$WORDPRESS_URL" \
+    --title="$WORDPRESS_TITLE" \
+    --admin_user="$WORDPRESS_ADMIN" \
+    --admin_password="$WORDPRESS_ADMIN_PASSWORD" \
+    --admin_email="$WORDPRESS_ADMIN_EMAIL" \
+    --skip-email \
     --allow-root
+  echo "WordPress installed."
 else
-  echo "WordPress already installed. Skipping installation."
+  echo "WordPress already installed."
 fi
+
+# Execute default entrypoint or other commands if needed
+exec "$@"
