@@ -1,0 +1,30 @@
+- name: Create EC2
+  hosts: localhost
+  gather_facts: true
+  tasks:
+    - name: Launch EC2 instance
+      amazon.aws.ec2_instance:
+        name: "{{ instance_name }}"
+        key_name: "{{ key_name }}"
+        instance_type: "{{ instance_type }}"
+        image_id: "{{ ami_id }}"
+        region: "{{ region }}"
+        wait: true
+        count: 1
+        vpc_subnet_id: "{{ subnet_id }}"
+        security_group: "{{ security_group }}"
+        # ?assign_public_ip: true
+        tags:
+          Environment: development
+          Project: cloud-1
+        register: ec2
+
+    - name: Add new instance to dynamic inventory group
+      add_host:
+        name: "{{ item.public_ip_address }}"
+        groups: launched
+      loop: "{{ ec2.instances }}"
+
+    - name: Set instance_id fact for termination
+      set_fact:
+        launched_instance_ids: "{{ ec2.instances | map(attribute='instance_id') | list }}"

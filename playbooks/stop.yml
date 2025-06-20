@@ -1,5 +1,5 @@
 - name: Stop Docker
-  hosts: localhost
+  hosts: dell
   become: true
   tasks:
     - name: Include stop tasks from Inception role

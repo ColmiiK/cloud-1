@@ -1,0 +1,8 @@
+- name: Deploy Inception
+  hosts: launched
+  become: true
+  tasks:
+    - name: Include main tasks from Inception role
+      include_role:
+        name: inception
+        tasks_from: main
