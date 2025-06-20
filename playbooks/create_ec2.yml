@@ -1,7 +1,26 @@
 - name: Create EC2
   hosts: localhost
   gather_facts: true
+  vars:
+    env_file_path: "../.env"
   tasks:
+    - name: Read .env file
+      slurp:
+        src: "{{ env_file_path }}"
+      register: env_file_raw
+
+    - name: Parse .env into a dictionary
+      set_fact:
+        env_vars_dict: "{{ dict(env_lines | map('regex_search', '([^=]+)=(.*)', '\\1', '\\2')) }}"
+      vars:
+        env_content: "{{ env_file_raw['content'] | b64decode }}"
+        env_lines: "{{ env_content.splitlines() | select('match', '^[^#\\n]+?=') | list }}"
+
+    - name: Set each .env variable as an Ansible fact
+      set_fact:
+        "{{ item.key | lower }}": "{{ item.value }}"
+      loop: "{{ env_vars_dict | dict2items }}"
+
     - name: Launch EC2 instance
       amazon.aws.ec2_instance:
         name: "{{ instance_name }}"
@@ -11,13 +30,18 @@
         region: "{{ region }}"
         wait: true
         count: 1
-        vpc_subnet_id: "{{ subnet_id }}"
+        # vpc_subnet_id: "{{ subnet_id }}"
         security_group: "{{ security_group }}"
-        # ?assign_public_ip: true
+        network:
+          assign_public_ip: true
         tags:
           Environment: development
           Project: cloud-1
-        register: ec2
+        state: present
+      environment:
+        AWS_ACCESS_KEY_ID: "{{ aws_access_key_id }}"
+        AWS_SECRET_ACCESS_KEY: "{{ aws_secret_access_key }}"
+        AWS_DEFAULT_REGION: "{{ aws_default_region }}"
 
     - name: Add new instance to dynamic inventory group
       add_host:
@@ -28,3 +52,8 @@
     - name: Set instance_id fact for termination
       set_fact:
         launched_instance_ids: "{{ ec2.instances | map(attribute='instance_id') | list }}"
+
+    - name: Display launched instances
+      debug:
+        msg: "Launched instance {{ item.instance_id }} with IP {{ item.public_ip_address }}"
+      loop: "{{ ec2.instances }}"
