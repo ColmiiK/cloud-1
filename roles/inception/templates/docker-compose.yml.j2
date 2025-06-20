@@ -23,7 +23,6 @@ services:
     depends_on:
       - db
       - wordpress
-    restart: unless-stopped
     entrypoint: /docker-entrypoint-init.d/wp-init.sh
 
   db:
