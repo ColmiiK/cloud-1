@@ -37,7 +37,6 @@ We can also put `host_vars/` to isolate variables per host.
 
 ## Requirements
 
-- Restart automatically if the server is rebooted
 - In case of reboot, all data must persist
   - Docker volumes, nothing else?
 - Possible to deploy your site on multiple servers in parallel
@@ -48,6 +47,7 @@ We can also put `host_vars/` to isolate variables per host.
 ## Completed requirements
 
 - The SQL database must work with WordPress and PHP-MyAdmin
+- Restart automatically if the server is rebooted
 - There must be a `docker-compose.yml`
 - The services are the components of a WordPress site
 - One application per container
