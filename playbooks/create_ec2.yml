@@ -38,6 +38,7 @@
           Environment: development
           Project: cloud-1
         state: present
+      register: ec2
       environment:
         AWS_ACCESS_KEY_ID: "{{ aws_access_key_id }}"
         AWS_SECRET_ACCESS_KEY: "{{ aws_secret_access_key }}"
@@ -57,3 +58,32 @@
       debug:
         msg: "Launched instance {{ item.instance_id }} with IP {{ item.public_ip_address }}"
       loop: "{{ ec2.instances }}"
+
+    - name: Check if instance ID file exists
+      stat:
+        path: "../launched_instance_ids.yml"
+      register: id_file_stat
+
+    - name: Read existing instance IDs (if file exists)
+      slurp:
+        src: "../launched_instance_ids.yml"
+      register: existing_ids_file
+      when: id_file_stat.stat.exists
+
+    - name: Set existing instance IDs fact
+      set_fact:
+        existing_instance_ids: >-
+          {{
+            (existing_ids_file['content'] | b64decode | from_yaml)
+            if id_file_stat.stat.exists else []
+          }}
+
+    - name: Merge new and existing instance IDs
+      set_fact:
+        all_instance_ids: "{{ (existing_instance_ids + launched_instance_ids) | unique }}"
+
+    - name: Save combined instance IDs to file
+      copy:
+        content: "{{ {'launched_instance_ids': all_instance_ids, 'region': region} | to_nice_yaml }}"
+        dest: "../launched_instance_metadata.yml"
+        mode: "0644"
