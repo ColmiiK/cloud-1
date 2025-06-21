@@ -39,3 +39,8 @@
       file:
         path: "../launched_instance_metadata.yml"
         state: absent
+
+    - name: Delete launched_hosts.yml
+      file:
+        path: "../launched_hosts.yml"
+        state: absent

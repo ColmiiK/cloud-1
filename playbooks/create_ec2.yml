@@ -43,20 +43,39 @@
         AWS_SECRET_ACCESS_KEY: "{{ aws_secret_access_key }}"
         AWS_DEFAULT_REGION: "{{ aws_default_region }}"
 
-    - name: Add new instance to dynamic inventory group
+    - name: Add new instances to dynamic inventory group
       add_host:
         name: "{{ item.public_ip_address }}"
         groups: launched
+        ansible_user: "{{ ansible_user }}"
+        ansible_ssh_private_key_file: "{{ ansible_ssh_private_key_file }}"
       loop: "{{ ec2.instances }}"
+
+    - name: Wait for SSH connection on launched instances
+      wait_for:
+        host: "{{ item.public_ip_address }}"
+        port: 22
+        delay: 30
+        timeout: 300
+        state: started
+      loop: "{{ ec2.instances }}"
+      delegate_to: localhost
+
+    - name: Save launched instance host info with SSH connection settings
+      copy:
+        content: |
+          launched_hosts:
+          {% for inst in ec2.instances %}
+            - ansible_host: {{ inst.public_ip_address }}
+              ansible_user: {{ ansible_user }}
+              ansible_ssh_private_key_file: {{ ansible_ssh_private_key_file }}
+          {% endfor %}
+        dest: "../launched_hosts.yml"
+        mode: "0644"
 
     - name: Set instance_id fact for termination
       set_fact:
         launched_instance_ids: "{{ ec2.instances | map(attribute='instance_id') | list }}"
-
-    - name: Display launched instances
-      debug:
-        msg: "Launched instance {{ item.instance_id }} with IP {{ item.public_ip_address }}"
-      loop: "{{ ec2.instances }}"
 
     - name: Check if instance ID file exists
       stat:
