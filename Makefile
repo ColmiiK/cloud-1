@@ -1,19 +1,16 @@
-local:
+all:
 	bash init.sh
+	source .venv/bin/activate
+	pip install -r pip_requirements.txt
 	ansible-galaxy install -r requirements.yml
-	ansible-playbook -i inventory/hosts.yml playbooks/local-setup.yml -K
+	ansible-playbook -i inventory/hosts.yml playbooks/create_ec2.yml
+	ansible-playbook -i inventory/hosts.yml playbooks/setup.yml
+	ansible-playbook -i inventory/hosts.yml playbooks/deploy.yml
 
-ec2:
-	bash init.sh
-	ansible-galaxy install -r requirements.yml
-	ansible-playbook -i inventory/hosts.yml playbooks/create_ec2.yml -K
-	ansible-playbook -i inventory/hosts.yml playbooks/setup.yml -K
-	ansible-playbook -i inventory/hosts.yml playbooks/deploy.yml -K
+terminate:
+	ansible-playbook -i inventory/hosts.yml playbooks/terminate.yml
 
-down:
-	ansible-playbook -i inventory/hosts.yml playbooks/stop.yml -K
-
-clean: down
+clean: terminate
 	rm -rf .venv
 
-.PHONY: local ec2 down clean
+.PHONY: all terminate clean
