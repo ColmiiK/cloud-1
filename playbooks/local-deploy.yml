@@ -8,11 +8,11 @@
         groups: launched
         ansible_user: "alvaro"
 
-- name: Stop Docker
+- name: Deploy Inception
   hosts: launched
   become: true
   tasks:
-    - name: Include stop tasks from Inception role
+    - name: Include main tasks from Inception role
       include_role:
         name: inception
-        tasks_from: stop
+        tasks_from: main

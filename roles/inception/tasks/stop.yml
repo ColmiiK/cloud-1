@@ -2,3 +2,10 @@
   community.docker.docker_compose_v2:
     project_src: "{{ wordpress_site_dir }}"
     state: absent
+- name: Remove Docker volumes
+  community.docker.docker_volume:
+    name: wordpress_wordpress_data
+    state: absent
+- name: Remove leftover Docker volumes
+  community.docker.docker_prune:
+    volumes: true
