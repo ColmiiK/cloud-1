@@ -2,7 +2,7 @@
   hosts: localhost
   gather_facts: true
   vars_files:
-    - vault_vars.yml
+    - ../vars/remote_vault_vars.yml
   tasks:
     - name: Load instance IDs from file
       include_vars:

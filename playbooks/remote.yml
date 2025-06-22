@@ -2,7 +2,7 @@
   hosts: localhost
   gather_facts: true
   vars_files:
-    - ../vars/vault_vars.yml
+    - ../vars/remove_vault_vars.yml
   tasks:
     - name: Create EC2 instance
       amazon.aws.ec2_instance:
@@ -65,7 +65,7 @@
   become: true
   gather_facts: true
   vars_files:
-    - ../vars/vault_vars.yml
+    - ../vars/remote_vault_vars.yml
   tasks:
     - name: Include main tasks from Inception role
       include_role:
