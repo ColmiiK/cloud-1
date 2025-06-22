@@ -37,15 +37,14 @@ We can also put `host_vars/` to isolate variables per host.
 
 ## Requirements
 
-- In case of reboot, all data must persist
-  - Docker volumes, nothing else?
 - Possible to deploy your site on multiple servers in parallel
   - Add multiple hosts to `ansible.cfg`
-- The script must function in an automatic way assuming Ubuntu 20.04 LTS with SSH and Python
 - Depending on the requested URL, the server must redirect to the correct site
 
 ## Completed requirements
 
+- In case of reboot, all data must persist
+- The script must function in an automatic way assuming Ubuntu 20.04 LTS with SSH and Python
 - The SQL database must work with WordPress and PHP-MyAdmin
 - Restart automatically if the server is rebooted
 - There must be a `docker-compose.yml`
