@@ -1,0 +1,32 @@
+- name: Set instance_id fact for termination
+  set_fact:
+    launched_instance_ids: "{{ ec2_instances | map(attribute='instance_id') | list }}"
+
+- name: Check if instance ID file exists
+  stat:
+    path: "{{ playbook_dir }}/../.launched_instance_metadata.yml"
+  register: id_file_stat
+
+- name: Read existing instance IDs (if file exists)
+  slurp:
+    src: "{{ playbook_dir }}/../.launched_instance_metadata.yml"
+  register: existing_ids_file
+  when: id_file_stat.stat.exists
+
+- name: Set existing instance IDs fact
+  set_fact:
+    existing_instance_ids: >-
+      {{
+        (existing_ids_file['content'] | b64decode | from_yaml)
+        if id_file_stat.stat.exists else []
+      }}
+
+- name: Merge new and existing instance IDs
+  set_fact:
+    all_instance_ids: "{{ (existing_instance_ids + launched_instance_ids) | unique }}"
+
+- name: Save combined instance IDs to file
+  copy:
+    content: "{{ {'launched_instance_ids': all_instance_ids, 'region': region} | to_nice_yaml }}"
+    dest: "{{ playbook_dir }}/../.launched_instance_metadata.yml"
+    mode: "0644"

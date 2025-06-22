@@ -9,5 +9,4 @@ fi
 source "$VENV_DIR/bin/activate"
 pip install -r pip_requirements.txt
 ansible-galaxy install -r requirements.yml
-ansible-playbook -i inventory/hosts.yml playbooks/local-setup.yml -K
-ansible-playbook -i inventory/hosts.yml playbooks/local-deploy.yml -K
+ansible-playbook -i inventory/hosts.yml playbooks/remote.yml --ask-vault-pass

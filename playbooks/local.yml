@@ -1,16 +1,24 @@
-- name: Load launched host IPs and add them to inventory
+- name: Launch locally
   hosts: localhost
-  gather_facts: false
+  gather_facts: true
   tasks:
-    - name: Add launched hosts to dynamic group
+    - name: Add new instances to dynamic inventory group
       add_host:
         name: "192.168.0.19"
         groups: launched
         ansible_user: "alvaro"
 
+- name: Install dependencies
+  hosts: launched
+  become: true
+  gather_facts: true
+  roles:
+    - role: dependencies
+
 - name: Deploy Inception
   hosts: launched
   become: true
+  gather_facts: true
   tasks:
     - name: Include main tasks from Inception role
       include_role:

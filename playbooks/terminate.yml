@@ -1,29 +1,12 @@
 - name: Terminate EC2 instance
   hosts: localhost
   gather_facts: true
-  vars:
-    env_file_path: "../.env"
+  vars_files:
+    - vault_vars.yml
   tasks:
-    - name: Read .env file
-      slurp:
-        src: "{{ env_file_path }}"
-      register: env_file_raw
-
-    - name: Parse .env into a dictionary
-      set_fact:
-        env_vars_dict: "{{ dict(env_lines | map('regex_search', '([^=]+)=(.*)', '\\1', '\\2')) }}"
-      vars:
-        env_content: "{{ env_file_raw['content'] | b64decode }}"
-        env_lines: "{{ env_content.splitlines() | select('match', '^[^#\\n]+?=') | list }}"
-
-    - name: Set each .env variable as an Ansible fact
-      set_fact:
-        "{{ item.key | lower }}": "{{ item.value }}"
-      loop: "{{ env_vars_dict | dict2items }}"
-
     - name: Load instance IDs from file
       include_vars:
-        file: "../launched_instance_metadata.yml"
+        file: "../.launched_instance_metadata.yml"
 
     - name: Terminate instance(s)
       amazon.aws.ec2_instance:
@@ -37,10 +20,5 @@
 
     - name: Delete launched_instance_metadata.yml
       file:
-        path: "../launched_instance_metadata.yml"
-        state: absent
-
-    - name: Delete launched_hosts.yml
-      file:
-        path: "../launched_hosts.yml"
+        path: "../.launched_instance_metadata.yml"
         state: absent

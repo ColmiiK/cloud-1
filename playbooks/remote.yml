@@ -1,0 +1,71 @@
+- name: Launch EC2
+  hosts: localhost
+  gather_facts: true
+  vars_files:
+    - vault_vars.yml
+  tasks:
+    - name: Create EC2 instance
+      amazon.aws.ec2_instance:
+        name: "{{ instance_name }}"
+        key_name: "{{ key_name }}"
+        instance_type: "{{ instance_type }}"
+        image_id: "{{ ami_id }}"
+        region: "{{ region }}"
+        wait: true
+        count: 1
+        security_group: "{{ security_group }}"
+        network:
+          assign_public_ip: true
+        tags:
+          Environment: development
+          Project: cloud-1
+        state: present
+      register: ec2
+      environment:
+        AWS_ACCESS_KEY_ID: "{{ aws_access_key_id }}"
+        AWS_SECRET_ACCESS_KEY: "{{ aws_secret_access_key }}"
+        AWS_DEFAULT_REGION: "{{ aws_default_region }}"
+
+    - name: Add new instances to dynamic inventory group
+      add_host:
+        name: "{{ item.public_ip_address }}"
+        groups: launched
+        ansible_user: "{{ ansible_user }}"
+        ansible_ssh_private_key_file: "{{ ansible_ssh_private_key_file }}"
+      loop: "{{ ec2.instances }}"
+
+    - name: Wait for SSH connection on launched instances
+      wait_for:
+        host: "{{ item.public_ip_address }}"
+        port: 22
+        delay: 30
+        timeout: 300
+        state: started
+      loop: "{{ ec2.instances }}"
+      delegate_to: localhost
+
+- name: Save instance metadata for termination
+  hosts: localhost
+  gather_facts: false
+  roles:
+    - role: instance_metadata
+      vars:
+        ec2_instances: "{{ ec2.instances }}"
+        region: "{{ region }}"
+
+- name: Install dependencies
+  hosts: launched
+  become: true
+  gather_facts: true
+  roles:
+    - role: dependencies
+
+- name: Deploy Inception
+  hosts: launched
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Include main tasks from Inception role
+      include_role:
+        name: inception
+        tasks_from: main

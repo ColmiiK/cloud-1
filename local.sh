@@ -9,6 +9,4 @@ fi
 source "$VENV_DIR/bin/activate"
 pip install -r pip_requirements.txt
 ansible-galaxy install -r requirements.yml
-ansible-playbook -i inventory/hosts.yml playbooks/create_ec2.yml
-ansible-playbook -i inventory/hosts.yml playbooks/setup.yml
-ansible-playbook -i inventory/hosts.yml playbooks/deploy.yml
+ansible-playbook -i inventory/hosts.yml playbooks/local.yml -K
