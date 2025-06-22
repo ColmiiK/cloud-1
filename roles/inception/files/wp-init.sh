@@ -24,5 +24,13 @@ else
   echo "WordPress already installed."
 fi
 
+wp config set FORCE_SSL_ADMIN true --raw
+
+# Add HTTPS detection behind reverse proxy if not already present
+CONFIG_PATH=$(wp config path)
+if ! grep -q "HTTP_X_FORWARDED_PROTO" "$CONFIG_PATH"; then
+  echo -e "\n// Handle HTTPS behind proxy\nif (isset(\$_SERVER['HTTP_X_FORWARDED_PROTO']) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {\n    \$_SERVER['HTTPS'] = 'on';\n}\n" >>"$CONFIG_PATH"
+fi
+
 # Execute default entrypoint or other commands if needed
 exec "$@"
