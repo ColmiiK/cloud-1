@@ -2,7 +2,7 @@
   hosts: localhost
   gather_facts: true
   vars_files:
-    - vault_vars.yml
+    - ../vars/local_vault_vars.yml
   tasks:
     - name: Add new instances to dynamic inventory group
       add_host:
@@ -22,7 +22,7 @@
   become: true
   gather_facts: true
   vars_files:
-    - vault_vars.yml
+    - ../vars/local_vault_vars.yml
   tasks:
     - name: Include main tasks from Inception role
       include_role:
