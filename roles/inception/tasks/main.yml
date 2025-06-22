@@ -4,12 +4,6 @@
     state: directory
     mode: "0755"
 
-- name: Copy .env file
-  copy:
-    src: .env
-    dest: "{{ wordpress_site_dir }}/.env"
-    mode: "0600"
-
 - name: Copy wp-init.sh file
   copy:
     src: wp-init.sh
