@@ -1,0 +1,10 @@
+- name: Update DuckDNS with EC2 public IP
+  uri:
+    url: "https://www.duckdns.org/update?domains={{ duckdns_domain }}&token={{ duckdns_token }}&ip={{ instance_ip_address }}"
+    method: GET
+    return_content: true
+  register: duckdns_result
+
+- name: Show DuckDNS response
+  debug:
+    var: duckdns_result.content

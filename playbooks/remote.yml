@@ -2,7 +2,7 @@
   hosts: localhost
   gather_facts: true
   vars_files:
-    - ../vars/remove_vault_vars.yml
+    - ../vars/remote_vault_vars.yml
   tasks:
     - name: Create EC2 instance
       amazon.aws.ec2_instance:
@@ -10,7 +10,7 @@
         key_name: "{{ key_name }}"
         instance_type: "{{ instance_type }}"
         image_id: "{{ ami_id }}"
-        region: "{{ region }}"
+        region: "{{ aws_default_region }}"
         wait: true
         count: 1
         security_group: "{{ security_group }}"
@@ -47,11 +47,24 @@
 - name: Save instance metadata for termination
   hosts: localhost
   gather_facts: false
+  vars_files:
+    - ../vars/remote_vault_vars.yml
   roles:
     - role: instance_metadata
       vars:
         ec2_instances: "{{ ec2.instances }}"
-        region: "{{ region }}"
+        region: "{{ aws_default_region }}"
+
+- name: Set DNS
+  hosts: localhost
+  become: false
+  gather_facts: true
+  vars_files:
+    - ../vars/remote_vault_vars.yml
+  roles:
+    - role: duckdns
+      vars:
+        instance_ip_address: "{{ ec2.instances[0].public_ip_address }}"
 
 - name: Install dependencies
   hosts: launched

@@ -17,7 +17,7 @@
   set_fact:
     existing_instance_ids: >-
       {{
-        (existing_ids_file['content'] | b64decode | from_yaml)
+        (existing_ids_file['content'] | b64decode | from_yaml).launched_instance_ids
         if id_file_stat.stat.exists else []
       }}
 
